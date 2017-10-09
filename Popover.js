@@ -40,8 +40,17 @@ class Popover extends Component {
     onClose: PropTypes.func,
   }
 
-  getInitialState() {
-    return {
+  static defaultProps = {
+    isVisible: false,
+    displayArea: new Rect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT),
+    arrowSize: DEFAULT_ARROW_SIZE,
+    placement: 'auto',
+    onClose: noop,
+  };
+
+  constructor(props) {
+    super(props);
+    this.state = {
       contentSize: {},
       anchorPoint: {},
       popoverOrigin: {},
@@ -55,17 +64,7 @@ class Popover extends Component {
     };
   }
 
-  getDefaultProps() {
-    return {
-      isVisible: false,
-      displayArea: new Rect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT),
-      arrowSize: DEFAULT_ARROW_SIZE,
-      placement: 'auto',
-      onClose: noop,
-    };
-  }
-
-  measureContent(x) {
+  measureContent = (x) => {
     var { width, height } = x.nativeEvent.layout;
     var contentSize = { width, height };
     var geom = this.computeGeometry({ contentSize });
@@ -79,7 +78,7 @@ class Popover extends Component {
       });
   }
 
-  computeGeometry({ contentSize, placement }) {
+  computeGeometry = ({ contentSize, placement }) => {
     placement = placement || this.props.placement;
 
     var options = {
@@ -103,7 +102,7 @@ class Popover extends Component {
     }
   }
 
-  computeTopGeometry({ displayArea, fromRect, contentSize, arrowSize }) {
+  computeTopGeometry = ({ displayArea, fromRect, contentSize, arrowSize }) => {
     var popoverOrigin = new Point(
       Math.min(displayArea.x + displayArea.width - contentSize.width,
         Math.max(displayArea.x, fromRect.x + (fromRect.width - contentSize.width) / 2)),
@@ -117,7 +116,7 @@ class Popover extends Component {
     }
   }
 
-  computeBottomGeometry({ displayArea, fromRect, contentSize, arrowSize }) {
+  computeBottomGeometry = ({ displayArea, fromRect, contentSize, arrowSize }) => {
     var popoverOrigin = new Point(
       Math.min(displayArea.x + displayArea.width - contentSize.width,
         Math.max(displayArea.x, fromRect.x + (fromRect.width - contentSize.width) / 2)),
@@ -131,7 +130,7 @@ class Popover extends Component {
     }
   }
 
-  computeLeftGeometry({ displayArea, fromRect, contentSize, arrowSize }) {
+  computeLeftGeometry = ({ displayArea, fromRect, contentSize, arrowSize }) => {
     var popoverOrigin = new Point(fromRect.x - contentSize.width - arrowSize.width,
       Math.min(displayArea.y + displayArea.height - contentSize.height,
         Math.max(displayArea.y, fromRect.y + (fromRect.height - contentSize.height) / 2)));
@@ -144,7 +143,7 @@ class Popover extends Component {
     }
   }
 
-  computeRightGeometry({ displayArea, fromRect, contentSize, arrowSize }) {
+  computeRightGeometry = ({ displayArea, fromRect, contentSize, arrowSize }) => {
     var popoverOrigin = new Point(fromRect.x + fromRect.width + arrowSize.width,
       Math.min(displayArea.y + displayArea.height - contentSize.height,
         Math.max(displayArea.y, fromRect.y + (fromRect.height - contentSize.height) / 2)));
@@ -157,7 +156,7 @@ class Popover extends Component {
     }
   }
 
-  computeAutoGeometry({ displayArea, contentSize }) {
+  computeAutoGeometry = ({ displayArea, contentSize }) => {
     var placementsToTry = ['left', 'right', 'bottom', 'top'];
 
     for (var i = 0; i < placementsToTry.length; i++) {
@@ -176,7 +175,7 @@ class Popover extends Component {
     return geom;
   }
 
-  getArrowSize(placement) {
+  getArrowSize = (placement) => {
     var size = this.props.arrowSize;
     switch (placement) {
       case 'left':
@@ -187,11 +186,11 @@ class Popover extends Component {
     }
   }
 
-  getArrowColorStyle(color) {
+  getArrowColorStyle = (color) => {
     return { borderTopColor: color };
   }
 
-  getArrowRotation(placement) {
+  getArrowRotation = (placement) => {
     switch (placement) {
       case 'bottom':
         return '180deg';
@@ -204,7 +203,7 @@ class Popover extends Component {
     }
   }
 
-  getArrowDynamicStyle() {
+  getArrowDynamicStyle = () => {
     var { anchorPoint, popoverOrigin } = this.state;
     var arrowSize = this.props.arrowSize;
 
@@ -227,14 +226,14 @@ class Popover extends Component {
     }
   }
 
-  getTranslateOrigin() {
+  getTranslateOrigin = () => {
     var { contentSize, popoverOrigin, anchorPoint } = this.state;
     var popoverCenter = new Point(popoverOrigin.x + contentSize.width / 2,
       popoverOrigin.y + contentSize.height / 2);
     return new Point(anchorPoint.x - popoverCenter.x, anchorPoint.y - popoverCenter.y);
   }
 
-  componentWillReceiveProps(nextProps: any) {
+  componentWillReceiveProps(nextProps) {
     var willBeVisible = nextProps.isVisible;
     var {
       isVisible,
@@ -251,13 +250,13 @@ class Popover extends Component {
     }
   }
 
-  _startAnimation({ show }) {
+  _startAnimation = ({ show }) => {
     var handler = this.props.startCustomAnimation || this._startDefaultAnimation;
     handler({ show, doneCallback: () => this.setState({ isTransitioning: false }) });
     this.setState({ isTransitioning: true });
   }
 
-  _startDefaultAnimation({ show, doneCallback }) {
+  _startDefaultAnimation = ({ show, doneCallback }) => {
     var animDuration = 300;
     var values = this.state.defaultAnimatedValues;
     var translateOrigin = this.getTranslateOrigin();
@@ -287,7 +286,7 @@ class Popover extends Component {
     ]).start(doneCallback);
   }
 
-  _getDefaultAnimatedStyles() {
+  _getDefaultAnimatedStyles = () => {
     // If there's a custom animation handler,
     // we don't return the default animated styles
     if (typeof this.props.startCustomAnimation !== 'undefined') {
@@ -321,7 +320,7 @@ class Popover extends Component {
     };
   }
 
-  _getExtendedStyles() {
+  _getExtendedStyles = () => {
     var background = [];
     var popover = [];
     var arrow = [];
@@ -348,7 +347,6 @@ class Popover extends Component {
     if (!this.props.isVisible && !this.state.isTransitioning) {
       return null;
     }
-
     var { popoverOrigin, placement } = this.state;
     var extendedStyles = this._getExtendedStyles();
     var contentStyle = [styles.content, ...extendedStyles.content];
